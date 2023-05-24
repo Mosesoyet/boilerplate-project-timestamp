@@ -102,7 +102,7 @@ app.get('/api/:date', (req,res,next) => {
   req.date = req.params.date;
   next()
 },(req,res) => {
-  if(req.date === "") {
+  if(req.date === " ") {
     let dateNow = new Date().toString();
     res.json({"unix": dateNow})
   } else if(isNaN(req.date)) {
@@ -118,7 +118,7 @@ app.get('/api/:date', (req,res,next) => {
     let sec = d.getSeconds()
     res.json({
       "unix" : req.date,
-      "utc": `${getDay(day)}, ${dateN} ${getMonth(month)} ${year} ${hour}:${mins}:${sec} GMT`
+      "utc": /*`${getDay(day)}, ${dateN} ${getMonth(month)} ${year} ${hour}:${mins}:${sec} GMT`*/d.toUTCString()
     })
   }
 })
