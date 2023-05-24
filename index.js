@@ -27,7 +27,7 @@ app.get("/api/hello", function (req, res) {
 
 // a function to get exact date string
 
-app.get('/api/date', (req,res,next) => {
+app.get('/api/', (req,res,next) => {
   res.json({"unix": Date.now(), "utc": Date()})
 })
 
