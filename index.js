@@ -27,99 +27,27 @@ app.get("/api/hello", function (req, res) {
 
 // a function to get exact date string
 
-let getDay = (day) => {
-  switch(day) {
-    case 1:
-      return "Sun";
-      break;
-    case 2:
-      return "Mon";
-      break;
-    case 3:
-      return "Tue";
-      break;
-    case 4:
-      return "Wed";
-      break;
-    case 5:
-      return "Thus";
-      break;
-    case 6:
-      return "Fri";
-      break;
-    case 7:
-      return "Sat"
-      break;
-  }
-  return day;
-}
-
-// Get month string
-
-let getMonth = (month) => {
-  switch(month) {
-    case 1:
-      return "Jan";
-      break;
-    case 2:
-      return "Feb"
-      break;
-    case 3:
-      return "Mar";
-      break;
-    case 4:
-      return "Apr";
-      break;
-    case 5:
-      return "May";
-      break;
-    case 6:
-      return "Jun";
-      break;
-    case 7:
-      return "July";
-      break;
-    case 8:
-      return "Aug";
-      break;
-    case 9:
-      return "Sept";
-      break;
-    case 10:
-      return "Oct";
-      break;
-    case 11:
-      return "Nov";
-      break;
-    case 12:
-      return "Dec";
-      break;
-  }
-  return month;
-}
+// date regex
+let utcRegex = /^\d{4}-\d{2}-\d{2}$/
+let unixRegex = /^\d{13}$/
 
 app.get('/api/:date', (req,res,next) => {
-  req.date = req.params.date;
+  req.date = req.params.date
   next()
 },(req,res) => {
-  if(req.date === " ") {
-    let dateNow = new Date().toString();
-    res.json({"unix": dateNow})
-  } else if(isNaN(req.date)) {
-    res.json({ "error" : "Invalid Date"})
-  } else {
-    let d = new Date(req.date * 1000)
-    let day = d.getDay();
-    let dateN = d.getDate();
-    let month = d.getMonth();
-    let year = d.getFullYear();
-    let hour = d.getHours()
-    let mins = d.getMinutes()
-    let sec = d.getSeconds()
-    res.json({
-      "unix" : req.date,
-      "utc": /*`${getDay(day)}, ${dateN} ${getMonth(month)} ${year} ${hour}:${mins}:${sec} GMT`*/d.toUTCString()
-    })
+  if(req.date.match(utcRegex)) {
+    let date = new Date(req.date);
+    let unixDate = (date * 1000) / 1000;
+    res.json({"unix": unixDate, "utc": date.toUTCString()})
+  } else if(req.date.match(unixRegex)) {
+    let date = new Date((req.date / 1000) * 1000);
+    res.json({"unix": req.date, "utc": date.toUTCString()})
+  } else if(!req.params.date) {
+    let date = new Date();
+    let unixDate = (date / 1000) * 1000;
+    res.json({"unix": unixDate, "utc": date.toUTCString()})
+  } else/* if(!utcRegex.test(req.date) || !unixRegex.test(req.date)) */{
+    res.json({"error": "Invalid Date"})
   }
 })
 
