@@ -27,27 +27,24 @@ app.get("/api/hello", function (req, res) {
 
 // a function to get exact date string
 
-// date regex
-let utcRegex = /^\d{4}-\d{2}-\d{2}$/
-let unixRegex = /^\d{13}$/
+app.get('/api/date', (req,res,next) => {
+  res.json({"unix": Date.now(), "utc": Date()})
+})
 
 app.get('/api/:date', (req,res,next) => {
   req.date = req.params.date
   next()
-},(req,res) => {
-  if(req.date.match(utcRegex)) {
-    let date = new Date(req.date);
-    let unixDate = (date * 1000) / 1000;
-    res.json({"unix": unixDate, "utc": date.toUTCString()})
-  } else if(req.date.match(unixRegex)) {
-    let date = new Date((req.date / 1000) * 1000);
-    res.json({"unix": req.date, "utc": date.toUTCString()})
-  } else if(!req.params.date) {
-    let date = new Date();
-    let unixDate = (date / 1000) * 1000;
-    res.json({"unix": unixDate, "utc": date.toUTCString()})
-  } else/* if(!utcRegex.test(req.date) || !unixRegex.test(req.date)) */{
-    res.json({"error": "Invalid Date"})
+}, (req,res) => {
+  if(/\d{5,}/.test(req.date)) {
+    let dateInt = parseInt(req.date);
+    res.json({"unix": dateInt, "utc": new Date(dateInt).toUTCString()})
+  } else {
+    let date = new Date(req.date)
+    if(date.toString() === "Invalid Date") {
+      res.json({"error": "Invalid Date"})
+    } else {
+      res.json({"unix": date.valueOf(), "utc": date.toUTCString()})
+    }
   }
 })
 
